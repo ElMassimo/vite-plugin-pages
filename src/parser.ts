@@ -34,8 +34,8 @@ export function parseMarkdownFile(filePath: string, content: string) {
   try {
     const data = parseFrontmatter(content)
     if (data) {
-      const { route, ...meta } = data
-      return { meta, ...route }
+      const { route, ...frontmatter } = data
+      return { ...route, meta: { frontmatter, ...route?.meta } }
     }
   } catch (err: any) {
     throw new Error(`Invalid frontmatter for ${filePath}\n${err.message}`)
