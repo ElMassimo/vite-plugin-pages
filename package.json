@@ -46,14 +46,14 @@
     }
   },
   "dependencies": {
-    "@antfu/utils": "^0.3.0",
     "debug": "^4.3.2",
     "deep-equal": "^2.0.5",
     "fast-glob": "^3.2.7",
     "json5": "^2.2.0",
-    "yaml": "^2.0.0-7"
+    "gray-matter": "^4.0.3"
   },
   "devDependencies": {
+    "@antfu/utils": "^0.3.0",
     "@hannoeru/eslint-config": "^0.2.4",
     "@types/debug": "^4.1.7",
     "@types/deep-equal": "^1.0.1",

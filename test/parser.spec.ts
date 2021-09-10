@@ -1,17 +1,30 @@
-import fs from 'fs'
 import { resolve } from 'path'
-import { parseSFC, parseCustomBlock } from '../src/parser'
+import { parseRouteData, parseMarkdownFile } from '../src/parser'
 import { resolveOptions } from '../src/options'
 
 const options = resolveOptions({})
-const path = resolve('./test/assets/pages/blog/[id].vue')
-const VueFile = fs.readFileSync(path, 'utf-8')
 
 describe('Parser', () => {
-  test('custom block', async() => {
-    const parsed = await parseSFC(VueFile)
-    const customBlock = parsed.customBlocks.find(b => b.type === 'route')!
-    const parsedCustomBlock = parseCustomBlock(customBlock, path, options)
+  test('json5 block', async() => {
+    const path = resolve('./test/assets/pages/blog/[id].vue')
+    const parsedCustomBlock = await parseRouteData(path, options)
     expect(parsedCustomBlock).toMatchSnapshot('custom block')
+  })
+
+  test('empty block', async() => {
+    const path = resolve('./test/assets/pages/about.vue')
+    const parsedCustomBlock = await parseRouteData(path, options)
+    expect(parsedCustomBlock).toEqual(undefined)
+  })
+
+  test('yaml block', async() => {
+    const path = resolve('./test/assets/pages/components.vue')
+    const parsedCustomBlock = await parseRouteData(path, options)
+    expect(parsedCustomBlock).toMatchSnapshot('yaml block')
+  })
+
+  test('markdown file', async() => {
+    const content = await parseMarkdownFile('example.md', '---\ntitle: About\n---')
+    expect(content).toEqual({ meta: { title: 'About' } })
   })
 })

@@ -1,5 +1,5 @@
 import { ViteDevServer } from 'vite'
-import { getPagesVirtualModule, isRouteBlockChanged, isTarget, debug, slash } from './utils'
+import { getPagesVirtualModule, isRouteBlockChanged, isTarget, supportsCustomBlock, debug, slash } from './utils'
 import { removePage, addPage, updatePage } from './pages'
 import { ResolvedOptions, ResolvedPages } from './types'
 
@@ -33,7 +33,7 @@ export function handleHMR(server: ViteDevServer, pages: ResolvedPages, options: 
   })
   watcher.on('change', async(file) => {
     const path = slash(file)
-    if (isTarget(path, options) && !options.react) {
+    if (supportsCustomBlock(file, options)) {
       const needReload = await isRouteBlockChanged(path, options)
       if (needReload) {
         updatePage(pages, path)

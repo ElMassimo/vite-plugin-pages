@@ -1,7 +1,7 @@
 import { join, extname, resolve } from 'path'
 import { PageDirOptions, ResolvedOptions, ResolvedPages, ResolvedPage } from './types'
 import { getPageFiles } from './files'
-import { getRouteBlock, routeBlockCache, toArray, slash } from './utils'
+import { getRouteBlock, routeBlockCache, supportsCustomBlock, toArray, slash } from './utils'
 
 export function removePage(
   pages: ResolvedPages,
@@ -73,7 +73,7 @@ async function setPage(
   const component = slash(join(pageDir.dir, file))
   const filepath = slash(resolve(options.root, component))
   const extension = extname(file).slice(1)
-  const customBlock = ['vue', 'md'].includes(extension)
+  const customBlock = supportsCustomBlock(filepath, options)
     ? await getRouteBlock(filepath, options)
     : null
 

@@ -1,10 +1,14 @@
+import { promises as fs } from 'fs'
+import { extname } from 'path'
 import JSON5 from 'json5'
-import YAML from 'yaml'
+import matter from 'gray-matter'
 
-import type { SFCDescriptor, SFCBlock } from '@vue/compiler-sfc'
-import type { ResolvedOptions } from './types'
+import { ResolvedOptions } from './types'
+import type { SFCDescriptor } from '@vue/compiler-sfc'
 
-export async function parseSFC(code: string): Promise<SFCDescriptor> {
+const engines = { json5: JSON5.parse.bind(JSON5) }
+
+async function parseSFC(code: string): Promise<SFCDescriptor> {
   try {
     const { parse } = await import('@vue/compiler-sfc')
     return parse(code, {
@@ -15,26 +19,37 @@ export async function parseSFC(code: string): Promise<SFCDescriptor> {
   }
 }
 
-export function parseCustomBlock(block: SFCBlock, filePath: string, options: ResolvedOptions): any {
-  const lang = block.lang ?? options.routeBlockLang
+export async function parseRouteData(filePath: string, options: ResolvedOptions) {
+  const content = await fs.readFile(filePath, 'utf8')
+  return extname(filePath) === '.vue'
+    ? await parseCustomBlock(filePath, content, options)
+    : parseMarkdownFile(filePath, content)
+}
 
-  if (lang === 'json5') {
-    try {
-      return JSON5.parse(block.content)
-    } catch (err: any) {
-      throw new Error(`Invalid JSON5 format of <${block.type}> content in ${filePath}\n${err.message}`)
+function parseFrontmatter(content: string, language?: string) {
+  return matter(content, { language, engines }).data
+}
+
+export function parseMarkdownFile(filePath: string, content: string) {
+  try {
+    const data = parseFrontmatter(content)
+    if (data) {
+      const { route, ...meta } = data
+      return { meta, ...route }
     }
-  } else if (lang === 'json') {
-    try {
-      return JSON.parse(block.content)
-    } catch (err: any) {
-      throw new Error(`Invalid JSON format of <${block.type}> content in ${filePath}\n${err.message}`)
-    }
-  } else if (lang === 'yaml' || lang === 'yml') {
-    try {
-      return YAML.parse(block.content)
-    } catch (err: any) {
-      throw new Error(`Invalid YAML format of <${block.type}> content in ${filePath}\n${err.message}`)
-    }
+  } catch (err: any) {
+    throw new Error(`Invalid frontmatter for ${filePath}\n${err.message}`)
+  }
+}
+
+export async function parseCustomBlock(filePath: string, content: string, options: ResolvedOptions) {
+  const parsed = await parseSFC(content)
+  const block = parsed.customBlocks.find(b => b.type === 'route')
+  if (!block) return undefined
+  const language = block.lang || options.routeBlockLang
+  try {
+    return parseFrontmatter(`---\n${block.content}\n---`, language)
+  } catch (err: any) {
+    throw new Error(`Invalid ${language} format of <${block.type}> content in ${filePath}\n${err.message}`)
   }
 }

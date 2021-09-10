@@ -1,4 +1,3 @@
-import fs from 'fs'
 import { resolve, basename } from 'path'
 import Debug from 'debug'
 import deepEqual from 'deep-equal'
@@ -6,7 +5,7 @@ import { ViteDevServer } from 'vite'
 import { OutputBundle } from 'rollup'
 import { toArray, slash } from '@antfu/utils'
 import { ResolvedOptions, Route } from './types'
-import { parseSFC, parseCustomBlock } from './parser'
+import { parseRouteData } from './parser'
 import { MODULE_ID_VIRTUAL } from './constants'
 
 export { toArray, slash }
@@ -27,6 +26,10 @@ function isPagesDir(path: string, options: ResolvedOptions) {
 
 export function isTarget(path: string, options: ResolvedOptions) {
   return isPagesDir(path, options) && options.extensionsRE.test(path)
+}
+
+export function supportsCustomBlock(path: string, options: ResolvedOptions) {
+  return isTarget(path, options) && !options.react
 }
 
 export const debug = {
@@ -91,13 +94,11 @@ export function findRouteByFilename(routes: Route[], filename: string): Route | 
 }
 
 export async function getRouteBlock(path: string, options: ResolvedOptions) {
-  const content = fs.readFileSync(path, 'utf8')
-  const parsed = await parseSFC(content)
+  if (!isTarget(path, options) || options.react) return null
 
-  const blockStr = parsed.customBlocks.find(b => b.type === 'route')
-  if (!blockStr) return null
+  const result = await parseRouteData(path, options)
+  if (!result) return null
 
-  const result: Record<string, any> = parseCustomBlock(blockStr, path, options)
   debug.parser('%s: %O', path, result)
   routeBlockCache.set(slash(path), result)
 
