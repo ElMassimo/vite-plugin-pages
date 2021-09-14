@@ -12,12 +12,12 @@ _This is a temporary fork of [vite-plugin-pages] that adds a Javascript API to t
 
 ## Getting Started
 
-By default a page is a Vue component exported from a `.vue` or `.mdx` file in the
-`src/pages` directory, and they are automatically registered in the router by [îles].
+By default, files in the `src/pages` directory are automatically registered
+as pages in the router.
 
 ## Configuration ⚙️
 
-You can provide custom configuration by providing a `pages` option in your [iles] configuration file:
+You can provide custom configuration by providing a `pages` option in your [îles] configuration file:
 
 ```js
 // iles.config.ts
@@ -28,4 +28,4 @@ export default {
 }
 ```
 
-Check the [vite-plugin-pages] documentation for reference.
+See the [vite-plugin-pages] documentation for more information.
