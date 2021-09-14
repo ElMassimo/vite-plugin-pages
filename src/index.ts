@@ -1,4 +1,3 @@
-import type { Plugin } from 'vite'
 import { Route, ResolvedOptions, UserOptions, ResolvedPages } from './types'
 import { generateRoutes, generateClientCode } from './generate'
 import { debug, replaceSquareBrackets } from './utils'
@@ -6,6 +5,7 @@ import { resolveOptions } from './options'
 import { MODULE_IDS, MODULE_ID_VIRTUAL } from './constants'
 import { resolvePages } from './pages'
 import { handleHMR } from './hmr'
+import type { Plugin } from 'vite'
 
 function pagesPlugin(userOptions: UserOptions = {}): Plugin {
   let generatedRoutes: Route[] | null = null
@@ -63,5 +63,5 @@ function pagesPlugin(userOptions: UserOptions = {}): Plugin {
 }
 
 export * from './types'
-export { generateRoutes }
+export { generateRoutes, resolvePages, resolveOptions, MODULE_ID_VIRTUAL }
 export default pagesPlugin
