@@ -21,9 +21,13 @@ async function parseSFC(code: string): Promise<SFCDescriptor> {
 
 export async function parseRouteData(filePath: string, options: ResolvedOptions) {
   const content = await fs.readFile(filePath, 'utf8')
-  return extname(filePath) === '.vue'
+  const rawBlock = extname(filePath) === '.vue'
     ? await parseCustomBlock(filePath, content, options)
     : parseMarkdownFile(filePath, content)
+  if (!rawBlock) return
+
+  const { alias, name, props, path, meta, route, ...blockMatter } = rawBlock
+  return { ...blockMatter, route: { alias, name, props, path, meta, ...route } }
 }
 
 function parseFrontmatter(content: string, language?: string) {
@@ -44,8 +48,10 @@ export async function parseCustomBlock(filePath: string, content: string, option
   if (!block) return undefined
   const language = block.lang || options.routeBlockLang
   try {
+    const templateAttrs = parsed.template?.attrs
     return {
-      ...parsed.template?.attrs,
+      ...templateAttrs,
+      templateAttrs,
       ...parseFrontmatter(`---\n${block.content}\n---`, language),
     }
   } catch (err: any) {
