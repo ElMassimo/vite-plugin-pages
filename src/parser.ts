@@ -2,6 +2,7 @@ import { promises as fs } from 'fs'
 import { extname } from 'path'
 import JSON5 from 'json5'
 import matter from 'gray-matter'
+import { clearUndefined } from '@antfu/utils'
 
 import { ResolvedOptions } from './types'
 import type { SFCDescriptor } from '@vue/compiler-sfc'
@@ -27,7 +28,7 @@ export async function parseRouteData(filePath: string, options: ResolvedOptions)
   if (!rawBlock) return
 
   const { alias, name, props, path, meta, route, ...blockMatter } = rawBlock
-  return { ...blockMatter, route: { alias, name, props, path, meta, ...route } }
+  return { ...blockMatter, route: clearUndefined({ alias, name, props, path, meta, ...route }) }
 }
 
 function parseFrontmatter(content: string, language?: string) {
