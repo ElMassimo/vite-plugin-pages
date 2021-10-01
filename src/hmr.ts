@@ -1,10 +1,10 @@
 import { ViteDevServer } from 'vite'
-import { getPagesVirtualModule, isRouteBlockChanged, isTarget, supportsCustomBlock, debug, slash } from './utils'
+import { getPagesVirtualModule, checkRouteBlockChanges, isTarget, supportsCustomBlock, debug, slash } from './utils'
 import { removePage, addPage, updatePage } from './pages'
 import { ResolvedOptions, ResolvedPages } from './types'
 
 export function handleHMR(server: ViteDevServer, pages: ResolvedPages, options: ResolvedOptions, clearRoutes: () => void) {
-  const { ws, watcher } = server
+  const { ws, watcher, moduleGraph } = server
 
   function fullReload() {
     // invalidate module
@@ -34,11 +34,12 @@ export function handleHMR(server: ViteDevServer, pages: ResolvedPages, options: 
   watcher.on('change', async(file) => {
     const path = slash(file)
     if (supportsCustomBlock(file, options)) {
-      const needReload = await isRouteBlockChanged(path, options)
-      if (needReload) {
+      const { changed, needsReload } = await checkRouteBlockChanges(path, options)
+      if (changed) {
+        moduleGraph.getModulesByFile(file)?.forEach(mod => moduleGraph.invalidateModule(mod))
         updatePage(pages, path)
         debug.hmr('change', path)
-        fullReload()
+        if (needsReload) fullReload()
       }
     }
   })

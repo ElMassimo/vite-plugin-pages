@@ -2,11 +2,11 @@ import { resolve, basename } from 'path'
 import Debug from 'debug'
 import deepEqual from 'deep-equal'
 import { ViteDevServer } from 'vite'
-import { OutputBundle } from 'rollup'
 import { toArray, slash } from '@antfu/utils'
 import { ResolvedOptions, Route } from './types'
 import { parseRouteData } from './parser'
 import { MODULE_ID_VIRTUAL } from './constants'
+import type { OutputBundle } from 'rollup'
 
 export { toArray, slash }
 
@@ -126,7 +126,7 @@ export function replaceSquareBrackets(bundle: OutputBundle) {
   }
 }
 
-export async function isRouteBlockChanged(filePath: string, options: ResolvedOptions) {
+export async function checkRouteBlockChanges(filePath: string, options: ResolvedOptions) {
   debug.cache(routeBlockCache)
   const oldRouteBlock = routeBlockCache.get(filePath)
   const routeBlock = await getRouteBlock(filePath, options)
@@ -134,5 +134,9 @@ export async function isRouteBlockChanged(filePath: string, options: ResolvedOpt
   debug.hmr('%s old: %O', filePath, oldRouteBlock)
   debug.hmr('%s new: %O', filePath, routeBlock)
 
-  return !deepEqual(oldRouteBlock, routeBlock)
+  return {
+    changed: !deepEqual(oldRouteBlock, routeBlock),
+    needsReload: !deepEqual(oldRouteBlock?.route, routeBlock?.route)
+      || !deepEqual(oldRouteBlock?.templateAttrs, routeBlock?.templateAttrs),
+  }
 }
