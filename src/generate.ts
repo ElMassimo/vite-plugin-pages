@@ -42,8 +42,10 @@ function prepareRoutes(
       route.children = prepareRoutes(route.children, options, route)
     }
 
-    if (!options.react)
-      Object.assign(route, route.customBlock || {})
+    if (!options.react) {
+      const { alias, name, props, path, meta } = { ...route, ...route.customBlock, ...route.customBlock?.route } as any
+      Object.assign(route, { alias, name, props, path, meta })
+    }
 
     delete route.customBlock
 
