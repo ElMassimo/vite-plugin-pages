@@ -106,3 +106,7 @@ export interface ResolvedOptions extends Options {
   extensionsRE: RegExp
   pagesDir: PageDirOptions[]
 }
+
+export interface PagesApi {
+  pageForFile: (filename: string) => ResolvedPage | undefined
+}

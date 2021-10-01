@@ -1,4 +1,4 @@
-import { Route, ResolvedOptions, UserOptions, ResolvedPages } from './types'
+import { Route, ResolvedOptions, UserOptions, ResolvedPages, PagesApi } from './types'
 import { generateRoutes, generateClientCode } from './generate'
 import { debug, replaceSquareBrackets } from './utils'
 import { resolveOptions } from './options'
@@ -7,7 +7,7 @@ import { resolvePages } from './pages'
 import { handleHMR } from './hmr'
 import type { Plugin } from 'vite'
 
-function pagesPlugin(userOptions: UserOptions = {}): Plugin {
+function pagesPlugin(userOptions: UserOptions = {}): Plugin & { api: PagesApi } {
   let generatedRoutes: Route[] | null = null
   let options: ResolvedOptions
   let pages: ResolvedPages
@@ -15,6 +15,11 @@ function pagesPlugin(userOptions: UserOptions = {}): Plugin {
   return {
     name: 'vite-plugin-pages',
     enforce: 'pre',
+    api: {
+      pageForFile(filename) {
+        return pages.get(filename)
+      },
+    } as PagesApi,
     async configResolved({ root }) {
       options = resolveOptions(userOptions, root)
       pages = await resolvePages(options)
