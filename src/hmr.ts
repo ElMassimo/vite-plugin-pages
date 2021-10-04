@@ -33,14 +33,14 @@ export function handleHMR(server: ViteDevServer, pages: ResolvedPages, options: 
   })
   watcher.on('change', async(file) => {
     const path = slash(file)
-    if (supportsCustomBlock(file, options)) {
-      const { changed, needsReload } = await checkRouteBlockChanges(path, options)
-      if (changed) {
-        moduleGraph.getModulesByFile(file)?.forEach(mod => moduleGraph.invalidateModule(mod))
-        updatePage(pages, path)
-        debug.hmr('change', path)
-        if (needsReload) fullReload()
-      }
+    if (!supportsCustomBlock(path, options)) return
+
+    const { changed, needsReload } = await checkRouteBlockChanges(path, options)
+    if (changed) {
+      moduleGraph.getModulesByFile(file)?.forEach(mod => moduleGraph.invalidateModule(mod))
+      updatePage(pages, path)
+      debug.hmr('change', path)
+      if (needsReload) fullReload()
     }
   })
 }

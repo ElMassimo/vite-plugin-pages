@@ -1,3 +1,5 @@
+import type { ViteDevServer } from 'vite'
+
 export type ImportMode = 'sync' | 'async'
 export type ImportModeResolveFn = (filepath: string) => ImportMode
 
@@ -105,6 +107,7 @@ export interface ResolvedOptions extends Options {
    */
   extensionsRE: RegExp
   pagesDir: PageDirOptions[]
+  server?: ViteDevServer
 }
 
 export interface PagesApi {

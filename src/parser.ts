@@ -39,23 +39,25 @@ export function parseMarkdownFile(filePath: string, content: string) {
   try {
     return parseFrontmatter(content)
   } catch (err: any) {
-    throw new Error(`Invalid frontmatter for ${filePath}\n${err.message}`)
+    err.message = `Invalid frontmatter for ${filePath}\n${err.message}`
+    throw err
   }
 }
 
 export async function parseCustomBlock(filePath: string, content: string, options: ResolvedOptions) {
   const parsed = await parseSFC(content)
+  const templateAttrs = parsed.template?.attrs
   const block = parsed.customBlocks.find(b => b.type === 'route')
-  if (!block) return undefined
+  if (!block) return { ...templateAttrs, templateAttrs }
   const language = block.lang || options.routeBlockLang
   try {
-    const templateAttrs = parsed.template?.attrs
     return {
       ...templateAttrs,
       templateAttrs,
       ...parseFrontmatter(`---\n${block.content}\n---`, language),
     }
   } catch (err: any) {
-    throw new Error(`Invalid ${language} format of <${block.type}> content in ${filePath}\n${err.message}`)
+    err.message = `Invalid ${language} format of <${block.type}> content in ${filePath}\n${err.message}`
+    throw err
   }
 }

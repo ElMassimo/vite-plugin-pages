@@ -1,7 +1,7 @@
 import { resolve, basename } from 'path'
 import Debug from 'debug'
 import deepEqual from 'deep-equal'
-import { ViteDevServer } from 'vite'
+import type { ViteDevServer } from 'vite'
 import { toArray, slash } from '@antfu/utils'
 import { ResolvedOptions, Route } from './types'
 import { parseRouteData } from './parser'
@@ -96,7 +96,14 @@ export function findRouteByFilename(routes: Route[], filename: string): Route | 
 export async function getRouteBlock(path: string, options: ResolvedOptions) {
   if (!isTarget(path, options) || options.react) return null
 
-  const result = await parseRouteData(path, options)
+  let result
+  try {
+    result = await parseRouteData(path, options)
+  } catch (error: any) {
+    if (!options.server) throw error
+    options.server.config.logger.error(error.message, { timestamp: true, error })
+    options.server.ws.send({ type: 'error', err: error })
+  }
   if (!result) return null
 
   debug.parser('%s: %O', path, result)

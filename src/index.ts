@@ -27,6 +27,7 @@ function pagesPlugin(userOptions: UserOptions = {}): Plugin & { api: PagesApi } 
       debug.pages(pages)
     },
     configureServer(server) {
+      options.server = server
       handleHMR(server, pages, options, () => {
         generatedRoutes = null
       })
