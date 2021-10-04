@@ -1,6 +1,6 @@
 {
   "name": "@mussi/vite-plugin-pages",
-  "version": "0.18.2",
+  "version": "0.18.3-beta.1",
   "description": "File system base vue-router plugin for Vite",
   "license": "MIT",
   "repository": {
