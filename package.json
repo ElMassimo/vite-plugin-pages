@@ -26,7 +26,7 @@
   "bugs": "https://github.com/hannoeru/vite-plugin-pages/issues",
   "scripts": {
     "dev": "npm run build -- --watch --ignore-watch examples",
-    "build": "tsup src/index.ts --dts --format cjs,esm --no-splitting --target node13.2",
+    "build": "tsup src/index.ts --dts --format cjs,esm --target node14",
     "prepublishOnly": "npm run build",
     "release": "npx bumpp --commit --tag --push",
     "example:dev": "npm -C examples/vue run dev",
@@ -37,20 +37,15 @@
     "lint:fix": "eslint --fix --ext .js,.ts,.vue,.json ."
   },
   "peerDependencies": {
-    "@vue/compiler-sfc": ">=3",
-    "vite": ">=2"
-  },
-  "peerDependenciesMeta": {
-    "@vue/compiler-sfc": {
-      "optional": true
-    }
+    "vite": ">=2",
+    "vue": ">= 3"
   },
   "dependencies": {
     "debug": "^4.3.2",
     "deep-equal": "^2.0.5",
     "fast-glob": "^3.2.7",
-    "json5": "^2.2.0",
-    "gray-matter": "^4.0.3"
+    "gray-matter": "^4.0.3",
+    "json5": "^2.2.0"
   },
   "devDependencies": {
     "@antfu/utils": "^0.3.0",
@@ -60,7 +55,6 @@
     "@types/glob-to-regexp": "^0.4.1",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.6",
-    "@vue/compiler-sfc": "^3.2.6",
     "eslint": "^7.32.0",
     "jest": "^27.1.0",
     "react-router-config": "^5.1.1",
@@ -70,6 +64,7 @@
     "tsup": "^4.14.0",
     "typescript": "^4.4.2",
     "vite": "^2.5.7",
+    "vue": "^3.2.20",
     "vue-router": "^4.0.11"
   }
 }

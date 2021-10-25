@@ -1,19 +1,43 @@
 import { resolve, basename } from 'path'
 import Debug from 'debug'
 import deepEqual from 'deep-equal'
-import type { ViteDevServer } from 'vite'
-import { toArray, slash } from '@antfu/utils'
+import type { Nullable, Arrayable } from '@antfu/utils'
 import { ResolvedOptions, Route } from './types'
 import { parseRouteData } from './parser'
 import { MODULE_ID_VIRTUAL } from './constants'
+import type { ViteDevServer } from 'vite'
 import type { OutputBundle } from 'rollup'
 
-export { toArray, slash }
+/**
+ * Convert `Arrayable<T>` to `Array<T>`
+ */
+export function toArray<T>(array?: Nullable<Arrayable<T>>): Array<T> {
+  array = array || []
+  if (Array.isArray(array))
+    return array
+  return [array]
+}
+
+/**
+ * Replace backslash to slash
+ */
+export function slash(str: string) {
+  return str.replace(/\\/g, '/')
+}
 
 export const routeBlockCache = new Map<string, Record<string, any>>()
 
 export function extensionsToGlob(extensions: string[]) {
   return extensions.length > 1 ? `{${extensions.join(',')}}` : extensions[0] || ''
+}
+
+/**
+ * Clear undefined fields from an object. It mutates the object
+ */
+export function clearUndefined<T extends object>(obj: T): T {
+  // @ts-expect-error
+  Object.keys(obj).forEach((key: string) => (obj[key] === undefined ? delete obj[key] : {}))
+  return obj
 }
 
 function isPagesDir(path: string, options: ResolvedOptions) {

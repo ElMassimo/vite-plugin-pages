@@ -2,23 +2,12 @@ import { promises as fs } from 'fs'
 import { extname } from 'path'
 import JSON5 from 'json5'
 import matter from 'gray-matter'
-import { clearUndefined } from '@antfu/utils'
+import { parse } from 'vue/compiler-sfc'
+import { clearUndefined } from './utils'
 
 import { ResolvedOptions } from './types'
-import type { SFCDescriptor } from '@vue/compiler-sfc'
 
 const engines = { json5: JSON5.parse.bind(JSON5) }
-
-async function parseSFC(code: string): Promise<SFCDescriptor> {
-  try {
-    const { parse } = await import('@vue/compiler-sfc')
-    return parse(code, {
-      pad: 'space',
-    }).descriptor
-  } catch {
-    throw new Error('[vite-plugin-pages] Vue3\'s "@vue/compiler-sfc" is required.')
-  }
-}
 
 export async function parseRouteData(filePath: string, options: ResolvedOptions) {
   const content = await fs.readFile(filePath, 'utf8')
@@ -45,7 +34,7 @@ export function parseMarkdownFile(filePath: string, content: string) {
 }
 
 export async function parseCustomBlock(filePath: string, content: string, options: ResolvedOptions) {
-  const parsed = await parseSFC(content)
+  const parsed = await parse(content, { pad: 'space' }).descriptor
   const templateAttrs = parsed.template?.attrs
   const block = parsed.customBlocks.find(b => b.type === 'route')
   if (!block) return { ...templateAttrs, templateAttrs }
